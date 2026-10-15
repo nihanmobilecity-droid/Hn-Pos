@@ -1,0 +1,31 @@
+name: Build Windows EXE
+
+on:
+  push:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Install Dependencies
+        run: npm install electron electron-packager better-sqlite3 express cors
+
+      - name: Build Windows EXE
+        run: npx electron-packager . "Hridoy And Nusrat Mobile Zone" --platform=win32 --arch=x64 --out=dist --overwrite
+
+      - name: Upload EXE Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: Hridoy-And-Nusrat-POS-EXE
+          path: dist/
