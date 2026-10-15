@@ -1,0 +1,873 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Hridoy And Nusrat Mobile Zone - POS System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Amiri:wght@700&family=Hind+Siliguri:wght@400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Hind Siliguri', -apple-system, sans-serif; }
+    body { background: #edf2f9; color: #0f172a; height: 100vh; overflow: hidden; }
+
+    /* LOGIN SCREEN */
+    #loginScreen {
+      position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(135deg, #070e1e 0%, #1e293b 100%);
+      display: flex; justify-content: center; align-items: center; z-index: 9999;
+    }
+    .login-box { background: #ffffff; width: 360px; padding: 30px 26px; border-radius: 14px; text-align: center; }
+    .bismillah-login { font-family: 'Amiri', serif; font-size: 19px; color: #1e293b; margin-bottom: 10px; font-weight: 700; }
+    .login-logo { width: 70px; height: 70px; border-radius: 50%; margin: 0 auto 10px; object-fit: contain; }
+    .login-box h2 { font-size: 18px; color: #0f172a; font-weight: 800; margin-bottom: 4px; }
+    .login-field { margin-bottom: 14px; text-align: left; }
+    .login-field label { display: block; font-size: 12px; font-weight: 700; color: #334155; margin-bottom: 4px; }
+    .login-field input { width: 100%; padding: 10px 12px; border: 1px solid #cbd5e1; border-radius: 6px; font-size: 13px; outline: none; }
+    .login-btn { width: 100%; padding: 11px; background: #1d4ed8; color: #fff; border: none; border-radius: 6px; font-size: 14px; font-weight: 700; cursor: pointer; }
+    .login-err { color: #dc2626; font-size: 12px; margin-top: 10px; display: none; font-weight: 600; }
+
+    /* DASHBOARD */
+    #dashboardApp { display: flex; height: 100vh; width: 100%; }
+    aside { width: 240px; background: #070e1e; color: #fff; display: flex; flex-direction: column; justify-content: space-between; flex-shrink: 0; }
+    .brand { padding: 18px 16px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid rgba(255,255,255,0.08); }
+    .brand-svg { width: 44px; height: 44px; border-radius: 50%; background: #fff; }
+    .brand-title h2 { font-size: 13.5px; font-weight: 700; color: #fff; }
+    .brand-title p { font-size: 11px; color: #94a3b8; }
+    .nav-menu { list-style: none; padding: 14px 10px; display: flex; flex-direction: column; gap: 4px; }
+    .nav-menu li a { display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #94a3b8; text-decoration: none; font-size: 13.5px; font-weight: 600; border-radius: 8px; }
+    .nav-menu li a:hover, .nav-menu li a.active { background: #1d4ed8; color: #fff; }
+
+    main { flex: 1; display: flex; flex-direction: column; overflow-y: auto; }
+    header { background: #fff; padding: 10px 26px; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #e2e8f0; position: sticky; top: 0; z-index: 40; }
+    .search-bar { display: flex; align-items: center; background: #f1f5f9; padding: 6px 14px; border-radius: 20px; border: 1px solid #e2e8f0; width: 280px; }
+    .search-bar input { border: none; background: transparent; outline: none; width: 100%; font-size: 13px; }
+    
+    .top-meta { display: flex; align-items: center; gap: 12px; font-size: 13px; color: #334155; }
+    .clock-badge { background: #f1f5f9; padding: 5px 12px; border-radius: 15px; font-weight: 600; color: #0f172a; border: 1px solid #e2e8f0; }
+    .logout-btn { background: #fee2e2; color: #dc2626; border: 1px solid #fca5a5; padding: 5px 12px; border-radius: 6px; font-size: 12px; font-weight: 700; cursor: pointer; }
+
+    .content-area { padding: 18px 26px; display: flex; flex-direction: column; gap: 18px; }
+
+    .bismillah-header-card {
+      background: #ffffff; border: 1px solid #e2e8f0; border-radius: 12px; text-align: center; padding: 12px 16px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.03);
+    }
+    .bismillah-arabic { font-family: 'Amiri', serif; font-size: 27px; color: #0284c7; font-weight: 700; }
+    .bismillah-meaning { font-size: 12px; color: #64748b; margin-top: 2px; }
+
+    .hero-banner { background: #1d61e7; color: #fff; padding: 16px 22px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
+
+    .stat-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 12px; }
+    .stat-card { color: #fff; border-radius: 10px; padding: 14px 16px; cursor: pointer; }
+    .stat-card.blue { background: #0284c7; }
+    .stat-card.green { background: #10b981; }
+    .stat-card.emerald { background: #059669; }
+    .stat-card.orange { background: #f59e0b; }
+    .stat-card.red { background: #ef4444; }
+
+    .forms-row { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+    .card { background: #ffffff; border-radius: 10px; padding: 18px; border: 1px solid #e2e8f0; }
+    .form-group { margin-bottom: 10px; }
+    .form-group label { display: block; font-size: 12px; font-weight: 700; margin-bottom: 4px; color: #334155; }
+    .form-group input, .form-group select { width: 100%; padding: 8px 10px; border: 1px solid #e2e8f0; border-radius: 6px; font-size: 13px; outline: none; }
+    .form-submit { width: 100%; padding: 10px; color: #fff; border: none; border-radius: 6px; font-size: 13px; font-weight: 700; cursor: pointer; }
+
+    table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    th, td { padding: 9px 12px; text-align: left; border-bottom: 1px solid #f1f5f9; }
+    th { background: #f8fafc; font-weight: 700; color: #475569; }
+
+    .btn-action { padding: 4px 8px; border: none; border-radius: 4px; font-size: 11px; font-weight: bold; cursor: pointer; }
+    .btn-edit { background: #fef3c7; color: #b45309; }
+    .btn-del { background: #fee2e2; color: #dc2626; margin-left: 4px; }
+
+    /* EDIT MODAL */
+    #editModal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 9998; }
+    .edit-box { background: #fff; width: 440px; padding: 20px; border-radius: 10px; }
+
+    /* INVOICE MODAL POPUP */
+    #invoiceModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.65); justify-content: center; align-items: center; z-index: 9999;
+      overflow-y: auto; padding: 20px;
+    }
+    .modal-container {
+      background: #fff; width: 880px; max-width: 98vw; padding: 22px; border-radius: 8px;
+    }
+
+    /* ================= A4 MEMO ================= */
+    .memo-a4 { background: #fff; border: 2px solid #0f172a; padding: 24px 28px; color: #000; }
+    .memo-a4-bismillah { text-align: center; font-family: 'Amiri', serif; font-size: 17px; font-weight: 700; color: #0f172a; margin-bottom: 4px; }
+    .memo-a4-header { display: flex; align-items: center; gap: 16px; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 12px; }
+    .memo-a4-logo-wrap { width: 95px; height: 95px; flex-shrink: 0; }
+    .memo-a4-title { flex: 1; text-align: center; }
+    .memo-a4-title h1 { font-size: 23px; font-weight: 800; color: #0f172a; margin-bottom: 2px; }
+    .memo-a4-title p { font-size: 12px; color: #1e293b; font-weight: 600; line-height: 1.4; }
+    .memo-a4-title .contacts { font-size: 12px; font-weight: 700; color: #0f172a; margin-top: 3px; }
+    .memo-a4-info-grid { display: grid; grid-template-columns: 1.3fr 1fr; border: 1.5px solid #0f172a; margin-bottom: 12px; font-size: 12.5px; }
+    .memo-a4-info-box { padding: 8px 12px; }
+    .memo-a4-info-box:first-child { border-right: 1.5px solid #0f172a; }
+    .memo-a4-info-box div { margin-bottom: 3px; }
+    .memo-a4-table { width: 100%; border-collapse: collapse; margin-bottom: 12px; font-size: 12.5px; }
+    .memo-a4-table th, .memo-a4-table td { border: 1px solid #0f172a; padding: 6px 8px; }
+    .memo-a4-table th { background: #f1f5f9; font-weight: 700; text-align: center; }
+    .memo-a4-calc { width: 100%; border-collapse: collapse; font-size: 12.5px; margin-bottom: 12px; }
+    .memo-a4-calc td { border: 1px solid #0f172a; padding: 5px 10px; }
+    .memo-a4-calc td.label { text-align: right; font-weight: 700; width: 75%; }
+    .memo-a4-calc td.val { text-align: right; font-weight: 800; width: 25%; }
+    .memo-a4-words { border: 1px solid #0f172a; padding: 6px 10px; font-size: 12px; margin-bottom: 20px; font-style: italic; }
+    .memo-a4-terms { font-size: 11px; color: #334155; margin-bottom: 35px; line-height: 1.4; border-left: 3px solid #0284c7; padding-left: 8px; }
+    .memo-a4-signatures { display: flex; justify-content: space-between; padding: 0 35px; font-size: 12px; font-weight: 700; }
+    .sig-line { border-top: 1px dashed #000; padding-top: 5px; width: 180px; text-align: center; }
+
+    /* ================= 2. THERMAL MEMO (BIG & BOLD) ================= */
+    #thermalPaper {
+      display: none; width: 100%; max-width: 78mm; margin: 0 auto;
+      color: #000; font-family: 'Hind Siliguri', monospace; font-size: 14px; line-height: 1.4;
+      background: #fff; padding: 2mm;
+    }
+    .th-center { text-align: center; }
+    .th-logo-wrap { width: 85px; height: 85px; margin: 0 auto 6px; }
+    .th-arabic { font-family: 'Amiri', serif; font-size: 17px; font-weight: 800; margin-bottom: 2px; }
+    .th-brand-title { font-size: 18px; font-weight: 800; margin-bottom: 2px; text-transform: uppercase; }
+    .th-subtext { font-size: 12px; font-weight: 600; line-height: 1.3; }
+    .th-divider { border-bottom: 2px dashed #000; margin: 8px 0; }
+    .th-info { font-size: 13px; line-height: 1.5; font-weight: 600; }
+    .th-table { width: 100%; border-collapse: collapse; font-size: 13.5px; margin: 6px 0; font-weight: 600; }
+    .th-table th, .th-table td { padding: 5px 0; }
+    .th-table th { border-bottom: 2px dashed #000; font-weight: 800; font-size: 14px; }
+    .th-totals { font-size: 14px; text-align: right; line-height: 1.7; font-weight: 600; }
+    .th-totals b { font-size: 16px; font-weight: 900; }
+
+    /* ================= PRINT RULES ================= */
+    @media print {
+      body * { visibility: hidden !important; }
+      
+      /* A4 PRINT */
+      body.print-mode-a4 #invoiceModal, body.print-mode-a4 #memoA4, body.print-mode-a4 #memoA4 * { visibility: visible !important; }
+      body.print-mode-a4 #invoiceModal { position: absolute; left: 0; top: 0; width: 100%; background: none; display: block !important; padding: 0; }
+      body.print-mode-a4 .modal-container { width: 100% !important; max-width: 100% !important; padding: 0; box-shadow: none; border: none; }
+      body.print-mode-a4 .memo-a4 { border: 1.5px solid #000; padding: 18px 24px; }
+      body.print-mode-a4 #thermalPaper { display: none !important; }
+      @page { margin: 8mm; size: A4 portrait; }
+
+      /* THERMAL PRINT (HIGH CONTRAST & FULL SCALE) */
+      body.print-mode-thermal #invoiceModal, body.print-mode-thermal #thermalPaper, body.print-mode-thermal #thermalPaper * { visibility: visible !important; }
+      body.print-mode-thermal #invoiceModal { position: absolute; left: 0; top: 0; width: 100%; background: none; display: block !important; padding: 0; }
+      body.print-mode-thermal .modal-container { width: 100% !important; max-width: 100% !important; padding: 0; box-shadow: none; border: none; }
+      body.print-mode-thermal #memoA4 { display: none !important; }
+      body.print-mode-thermal #thermalPaper { display: block !important; width: 100% !important; max-width: 100% !important; padding: 0; }
+      @page { margin: 0; size: 80mm auto; }
+    }
+  </style>
+</head>
+<body>
+
+  <!-- EMBEDDED HIGH QUALITY VECTOR LOGO (NO BROKEN IMAGES) -->
+  <svg style="display:none;" xmlns="http://www.w3.org/2000/svg">
+    <symbol id="hn-logo" viewBox="0 0 200 200">
+      <circle cx="100" cy="100" r="94" fill="none" stroke="#000" stroke-width="7"/>
+      <!-- Outer Orbit Ring -->
+      <path d="M 30,85 C 20,60 180,40 170,115 C 160,150 40,110 30,85 Z" fill="none" stroke="#000" stroke-width="5"/>
+      <!-- Mobile icon on orbit -->
+      <rect x="120" y="35" width="30" height="52" rx="6" fill="#fff" stroke="#000" stroke-width="4"/>
+      <circle cx="135" cy="80" r="2.5" fill="#000"/>
+      <!-- HN Stylized monogram -->
+      <text x="35" y="105" font-size="62" font-family="'Arial Black', sans-serif" font-weight="900" fill="#000">H</text>
+      <text x="82" y="105" font-size="62" font-family="'Arial Black', sans-serif" font-weight="900" fill="#000">N</text>
+      <!-- Brand Name -->
+      <text x="100" y="132" font-size="16" font-family="'Arial Black', sans-serif" font-weight="900" text-anchor="middle" fill="#000">Hridoy And Nusrat</text>
+      <text x="100" y="156" font-size="19" font-family="'Arial Black', sans-serif" font-style="italic" font-weight="900" text-anchor="middle" fill="#000">Mobile Zone</text>
+      <!-- Bottom Phone Icon & Lines -->
+      <line x1="45" y1="168" x2="82" y2="168" stroke="#000" stroke-width="4"/>
+      <rect x="88" y="159" width="16" height="23" rx="3" fill="#fff" stroke="#000" stroke-width="3"/>
+      <circle cx="96" cy="178" r="1.5" fill="#000"/>
+      <line x1="110" y1="168" x2="155" y2="168" stroke="#000" stroke-width="4"/>
+    </symbol>
+  </svg>
+
+  <!-- LOGIN -->
+  <div id="loginScreen">
+    <div class="login-box">
+      <div class="bismillah-login">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+      <svg class="login-logo"><use href="#hn-logo"></use></svg>
+      <h2>Hridoy And Nusrat Mobile Zone</h2>
+      <p style="font-size: 12px; color: #64748b; margin-bottom: 16px;">লগইন করে সিস্টেমে প্রবেশ করুন</p>
+      <form id="loginForm">
+        <div class="login-field">
+          <label>Username</label>
+          <input type="text" id="loginUsername" placeholder="admin" required autofocus>
+        </div>
+        <div class="login-field">
+          <label>Password</label>
+          <input type="password" id="loginPassword" placeholder="••••" required>
+        </div>
+        <button type="submit" class="login-btn">লগইন করুন</button>
+      </form>
+      <div class="login-err" id="loginErr">ভুল ব্যবহারকারীর নাম বা পাসওয়ার্ড!</div>
+    </div>
+  </div>
+
+  <div id="dashboardApp">
+    <aside>
+      <div>
+        <div class="brand">
+          <svg class="brand-svg"><use href="#hn-logo"></use></svg>
+          <div class="brand-title">
+            <h2>HN Mobile Zone</h2>
+            <p>হৃদয় এন্ড নুসরাত</p>
+          </div>
+        </div>
+        <ul class="nav-menu">
+          <li><a href="#" class="active">📊 ড্যাশবোর্ড</a></li>
+          <li><a href="#posSection">🛒 বিক্রয় (POS)</a></li>
+          <li><a href="#inventorySection">📋 স্টক তালিকা</a></li>
+          <li><a href="#supplierSection">🤝 সাপ্লায়ার খাতা</a></li>
+          <li><a href="#reportsSection">📈 মেমো লগ</a></li>
+          <li><a href="#profitSection">💰 পণ্যের লাভ</a></li>
+        </ul>
+      </div>
+    </aside>
+
+    <main>
+      <header>
+        <div class="search-bar">
+          <input type="text" placeholder="পণ্য খুঁজুন..." onkeyup="filterProducts(this.value)">
+        </div>
+        <div class="top-meta">
+          <div class="clock-badge" id="liveClock">লোড হচ্ছে...</div>
+          <button class="logout-btn" onclick="handleLogout()">লগআউট</button>
+        </div>
+      </header>
+
+      <div class="content-area">
+
+        <div class="bismillah-header-card">
+          <div class="bismillah-arabic">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+          <div class="bismillah-meaning">পরম করুণাময় অসীম দয়ালু আল্লাহর নামে শুরু করছি</div>
+        </div>
+
+        <div class="hero-banner">
+          <div>
+            <h2>হৃদয় এন্ড নুসরাত মোবাইল জোন</h2>
+            <p>মোবাইল, এক্সেসরিজ, দ্রুত থার্মাল ও A4 মেমো এবং লাভ হিসাব ব্যবস্থাপনা।</p>
+          </div>
+        </div>
+
+        <!-- 5 STAT CARDS -->
+        <div class="stat-grid">
+          <div class="stat-card blue" onclick="filterStock('all')"><div><span>মোট পণ্য</span><h3 id="statTotalProducts">0</h3></div></div>
+          <div class="stat-card green" onclick="filterStock('in')"><div><span>স্টকে আছে</span><h3 id="statInStock">0</h3></div></div>
+          <div class="stat-card emerald"><div><span>আজকের লাভ</span><h3 id="statTodayProfit">৳ 0</h3></div></div>
+          <div class="stat-card orange" onclick="filterStock('low')"><div><span>কম স্টক</span><h3 id="statLowStock">0</h3></div></div>
+          <div class="stat-card red" onclick="filterStock('out')"><div><span>স্টক শেষ (ক্লিক)</span><h3 id="statOutOfStock">0</h3></div></div>
+        </div>
+
+        <!-- POS & ADD PRODUCT -->
+        <div class="forms-row" id="posSection">
+          <div class="card">
+            <h3 style="margin-bottom:12px;">🛒 দ্রুত বিক্রয় (POS)</h3>
+            <form id="saleForm">
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-group"><label>গ্রাহকের নাম</label><input type="text" id="custName" required placeholder="কাস্টমারের নাম"></div>
+                <div class="form-group"><label>মোবাইল নম্বর</label><input type="text" id="custPhone" required placeholder="017xxxxxxxx"></div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-group"><label>প্রতিষ্ঠান / ঠিকানা</label><input type="text" id="custAddress" placeholder="যেমন: চন্দ্রা, গাজীপুর"></div>
+                <div class="form-group"><label>চালান নম্বর</label><input type="text" id="saleChallan" placeholder="101"></div>
+              </div>
+              <div class="form-group"><label>পণ্য নির্বাচন করুন</label><select id="saleProductSelect" required onchange="calculateTotal()"></select></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-group"><label>পরিমাণ</label><input type="number" id="saleQty" value="1" min="1" required oninput="calculateTotal()"></div>
+                <div class="form-group"><label>ডিসকাউন্ট (৳)</label><input type="number" id="saleDiscount" value="0" min="0" oninput="calculateTotal()"></div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-group"><label>জমা দিল (৳)</label><input type="number" id="salePaid" placeholder="0.00" oninput="calculateDue()"></div>
+                <div class="form-group"><label>বাকি থাকবে (৳)</label><input type="text" id="saleDueDisplay" value="৳ 0" readonly style="background:#f8fafc; font-weight:bold; color:red;"></div>
+              </div>
+              <button type="submit" class="form-submit" style="background:#10b981;">✓ বিক্রয় ও মেমো তৈরি করুন</button>
+            </form>
+          </div>
+
+          <div class="card" id="productsSection">
+            <h3 style="margin-bottom:12px;">📦 নতুন পণ্য যুক্ত করুন</h3>
+            <form id="addProductForm">
+              <div class="form-group"><label>পণ্যের নাম</label><input type="text" id="pName" required placeholder="যেমন: Vivo Y17s / Fast Charger"></div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px;">
+                <div class="form-group"><label>ক্যাটাগরি</label><select id="pCategory"><option value="Smartphone">Smartphone</option><option value="Accessories">Accessories</option><option value="Electronics">Electronics</option><option value="Others">Others</option></select></div>
+                <div class="form-group"><label>সাপ্লায়ার / ডিলার</label><select id="pSupplier"></select></div>
+              </div>
+              <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;">
+                <div class="form-group"><label>স্টক সংখ্যা</label><input type="number" id="pStock" value="1" min="0"></div>
+                <div class="form-group"><label>ক্রয় মূল্য (৳)</label><input type="number" id="pBuyPrice" placeholder="0.00" step="any"></div>
+                <div class="form-group"><label>বিক্রয় মূল্য (৳)</label><input type="number" id="pPrice" placeholder="0.00" step="any" required></div>
+              </div>
+              <button type="submit" class="form-submit" style="background:#0284c7;">+ ইনভেন্টরিতে সেভ করুন</button>
+            </form>
+          </div>
+        </div>
+
+        <!-- INVENTORY TABLE -->
+        <div class="card" id="inventorySection">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3>📋 বর্তমান স্টক তালিকা</h3>
+            <span id="stockFilterNotice" style="font-size:12px; color:#0284c7; font-weight:bold;">সব পণ্য দেখানো হচ্ছে</span>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>আইডি</th><th>পণ্যের নাম</th><th>ক্যাটাগরি</th><th style="color:#1d4ed8;">সাপ্লায়ার</th><th>ক্রয় মূল্য</th><th>বিক্রয় মূল্য</th><th>স্টক</th><th>অবস্থা</th><th style="text-align: center;">একশন</th>
+              </tr>
+            </thead>
+            <tbody id="inventoryTable"></tbody>
+          </table>
+        </div>
+
+        <!-- SUPPLIER LIST -->
+        <div class="card" id="supplierSection">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3>🤝 সাপ্লায়ার খাতা ও যোগাযোগ</h3>
+            <button onclick="openSupplierAdd()" style="padding: 5px 12px; background: #0284c7; color:#fff; border:none; border-radius:4px; font-weight:bold; cursor:pointer;">+ নতুন সাপ্লায়ার</button>
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>নং</th><th>সাপ্লায়ার / ডিলারের নাম</th><th>কোম্পানি</th><th>মোবাইল নম্বর</th><th>সরবরাহকৃত পণ্য</th><th style="text-align: center;">একশন</th>
+              </tr>
+            </thead>
+            <tbody id="supplierTable"></tbody>
+          </table>
+        </div>
+
+        <!-- SALES REPORT & MEMO LOG -->
+        <div class="card" id="reportsSection">
+          <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+            <h3>📈 দৈনিক বিক্রয় হিসাব ও মেমো লগ</h3>
+            <input type="date" id="reportDate" style="padding: 5px 8px; border: 1px solid #e2e8f0; border-radius: 6px;" onchange="loadDailyReport()">
+          </div>
+          <table>
+            <thead>
+              <tr>
+                <th>মেমো নং</th><th>সময়</th><th>গ্রাহক</th><th>মোট বিল</th><th>জমা</th><th>বকেয়া</th><th>লাভ</th><th style="text-align: center;">একশন</th>
+              </tr>
+            </thead>
+            <tbody id="salesReportTable"></tbody>
+          </table>
+        </div>
+
+      </div>
+    </main>
+  </div>
+
+  <!-- MASTER INVOICE MODAL (CONTAINER FOR A4 & THERMAL) -->
+  <div id="invoiceModal">
+    <div class="modal-container">
+      
+      <!-- 1. EXCLUSIVE A4 MEMO -->
+      <div class="memo-a4" id="memoA4">
+        <div class="memo-a4-bismillah">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+        
+        <div class="memo-a4-header">
+          <div class="memo-a4-logo-wrap">
+            <svg style="width:100%; height:100%;"><use href="#hn-logo"></use></svg>
+          </div>
+          <div class="memo-a4-title">
+            <h1>HRIDOY AND NUSRAT MOBILE ZONE</h1>
+            <p>হাজী মকদম আলী প্লাজা, চন্দ্রা, কালিয়াকৈর, গাজীপুর-১৭৫০</p>
+            <p>পাইকারি ও খুচরা বিক্রয় কেন্দ্র • যাবতীয় মোবাইল, এক্সেসরিজ ও সার্ভিসিং</p>
+            <div class="contacts">
+              মোবাইল: +880 1718-231028 &nbsp;|&nbsp; +880 1327-351690
+            </div>
+          </div>
+        </div>
+
+        <div class="memo-a4-info-grid">
+          <div class="memo-a4-info-box">
+            <div><b>গ্রাহকের নাম:</b> <span id="mA4CustName">-</span></div>
+            <div><b>ঠিকানা:</b> <span id="mA4Address">-</span></div>
+            <div><b>মোবাইল নম্বর:</b> <span id="mA4Mobile">-</span></div>
+          </div>
+          <div class="memo-a4-info-box">
+            <div><b>ইনভয়েস নং:</b> <span id="mA4InvoiceNo" style="font-weight: 800;">-</span></div>
+            <div><b>তারিখ:</b> <span id="mA4Date">-</span></div>
+            <div><b>চালান নং:</b> <span id="mA4Challan">-</span></div>
+          </div>
+        </div>
+
+        <table class="memo-a4-table">
+          <thead>
+            <tr>
+              <th style="width: 8%;">ক্র.নং</th>
+              <th style="width: 52%;">পণ্যের পূর্ণ বিবরণ</th>
+              <th style="width: 12%;">পরিমাণ</th>
+              <th style="width: 14%;">দর (টাকা)</th>
+              <th style="width: 14%;">মোট (টাকা)</th>
+            </tr>
+          </thead>
+          <tbody id="mA4ItemsBody"></tbody>
+        </table>
+
+        <table class="memo-a4-calc">
+          <tr><td class="label">মোট বিল (Subtotal):</td><td class="val" id="mA4Subtotal">0.00</td></tr>
+          <tr><td class="label">ডিসকাউন্ট (-):</td><td class="val" id="mA4Discount">0.00</td></tr>
+          <tr><td class="label" style="font-size: 13.5px;">সর্বমোট প্রদেয় (Net Payable):</td><td class="val" style="font-size: 13.5px;" id="mA4NetTotal">0.00</td></tr>
+          <tr><td class="label">নগদ জমা (Paid):</td><td class="val" id="mA4Paid">0.00</td></tr>
+          <tr><td class="label" style="color:red;">বকেয়া (Due Amount):</td><td class="val" style="color:red;" id="mA4Due">0.00</td></tr>
+        </table>
+
+        <div class="memo-a4-words">
+          <b>কথায়:</b> <span id="mA4InWords">Zero Taka only</span>
+        </div>
+
+        <div class="memo-a4-terms">
+          * বিক্রিত পণ্য ৭ দিনের মধ্যে ক্যাশ মেমোসহ পরিবর্তনযোগ্য (শর্ত সাপেক্ষে)।<br>
+          * কোনো প্রকার কাটা-ছেঁড়া বা দাগযুক্ত মেমো গ্রহণযোগ্য নয়। আপনার বিশ্বস্ততায় আমরা অঙ্গীকারবদ্ধ।
+        </div>
+
+        <div class="memo-a4-signatures">
+          <div class="sig-line">গ্রাহকের স্বাক্ষর</div>
+          <div class="sig-line">কর্তৃপক্ষের স্বাক্ষর</div>
+        </div>
+      </div>
+
+      <!-- 2. HIGH QUALITY THERMAL MEMO (BIG & BOLD) -->
+      <div id="thermalPaper">
+        <div class="th-center">
+          <div class="th-arabic">بِسْمِ اللَّهِ الرَّحْمَٰنِ الرَّحِيمِ</div>
+          <div class="th-logo-wrap">
+            <svg style="width:100%; height:100%;"><use href="#hn-logo"></use></svg>
+          </div>
+          <div class="th-brand-title">Hridoy And Nusrat</div>
+          <div style="font-size: 16px; font-weight: 800;">Mobile Zone</div>
+          <div class="th-subtext">হাজী মকদম আলী প্লাজা, চন্দ্রা, গাজীপুর</div>
+          <div class="th-subtext">মোবাইল: 01718-231028, 01327-351690</div>
+        </div>
+        
+        <div class="th-divider"></div>
+        <div class="th-info">
+          <b>ইনভয়েস:</b> #<span id="thInv"></span><br>
+          <b>তারিখ:</b> <span id="thDateTime"></span><br>
+          <b>গ্রাহক:</b> <span id="thCust"></span><br>
+          <b>মোবাইল:</b> <span id="thPhone"></span>
+        </div>
+        
+        <div class="th-divider"></div>
+        <table class="th-table">
+          <thead>
+            <tr>
+              <th style="text-align:left;">আইটেম</th>
+              <th style="text-align:center;">পরিমাণ</th>
+              <th style="text-align:right;">মোট</th>
+            </tr>
+          </thead>
+          <tbody id="thItems"></tbody>
+        </table>
+        
+        <div class="th-divider"></div>
+        <div class="th-totals">
+          মোট বিল: ৳ <span id="thSub"></span><br>
+          ডিসকাউন্ট: ৳ <span id="thDisc"></span><br>
+          <b>সর্বমোট: ৳ <span id="thNet"></span></b><br>
+          জমা টাকা: ৳ <span id="thPaid"></span><br>
+          <span style="color:#000;">বকেয়া (বাকি): ৳ <span id="thDue"></span></span>
+        </div>
+        
+        <div class="th-divider"></div>
+        <div class="th-center" style="font-size: 13px; font-weight:700; margin-top: 6px;">
+          ধন্যবাদ, আবার আসবেন!
+        </div>
+      </div>
+
+      <!-- ACTION BUTTONS -->
+      <div class="no-print" style="display:flex; gap:10px; margin-top:20px; justify-content:flex-end;">
+        <button onclick="executePrint('thermal')" style="padding:11px 22px; background:#10b981; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer;">🧾 থার্মাল প্রিন্ট (POS)</button>
+        <button onclick="executePrint('a4')" style="padding:11px 22px; background:#0284c7; color:#fff; border:none; border-radius:6px; font-size:14px; font-weight:bold; cursor:pointer;">📄 প্রিন্ট ইনভয়েস (A4)</button>
+        <button onclick="document.getElementById('invoiceModal').style.display='none'" style="padding:11px 18px; background:#e2e8f0; color:#334155; border:none; border-radius:6px; font-weight:bold; cursor:pointer;">বন্ধ</button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const API_BASE = 'http://localhost:3000/api';
+    let allProducts = [];
+    let salesHistory = [];
+
+    function updateClock() {
+      const now = new Date();
+      const timeStr = now.toLocaleTimeString('bn-BD', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+      const dateStr = now.toLocaleDateString('bn-BD', { day: 'numeric', month: 'long', year: 'numeric' });
+      document.getElementById('liveClock').innerText = `🕒 ${timeStr} | 📅 ${dateStr}`;
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    document.getElementById('reportDate').value = new Date().toISOString().split('T')[0];
+
+    if (localStorage.getItem('hn_logged_in') === 'true') document.getElementById('loginScreen').style.display = 'none';
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+      e.preventDefault();
+      if (document.getElementById('loginUsername').value === 'admin' && document.getElementById('loginPassword').value === '1234') {
+        localStorage.setItem('hn_logged_in', 'true');
+        document.getElementById('loginScreen').style.display = 'none';
+      } else {
+        document.getElementById('loginErr').style.display = 'block';
+      }
+    });
+    function handleLogout() { localStorage.removeItem('hn_logged_in'); document.getElementById('loginScreen').style.display = 'flex'; }
+
+    function numberToWords(num) {
+      if (!num || num === 0) return 'Zero Taka only';
+      const a = ['','One ','Two ','Three ','Four ','Five ','Six ','Seven ','Eight ','Nine ','Ten ','Eleven ','Twelve ','Thirteen ','Fourteen ','Fifteen ','Sixteen ','Seventeen ','Eighteen ','Nineteen '];
+      const b = ['', '', 'Twenty','Thirty','Forty','Fifty','Sixty','Seventy','Eighty','Ninety'];
+      function convert(n) {
+        if (n < 20) return a[n];
+        if (n < 100) return b[Math.floor(n / 10)] + (n % 10 !== 0 ? ' ' + a[n % 10] : ' ');
+        if (n < 1000) return convert(Math.floor(n / 100)) + 'Hundred ' + (n % 100 !== 0 ? 'and ' + convert(n % 100) : '');
+        if (n < 100000) return convert(Math.floor(n / 1000)) + 'Thousand ' + (n % 1000 !== 0 ? convert(n % 1000) : '');
+        if (n < 10000000) return convert(Math.floor(n / 100000)) + 'Lakh ' + (n % 100000 !== 0 ? convert(n % 100000) : '');
+        return '';
+      }
+      return convert(Math.floor(num)).trim() + ' Taka only';
+    }
+
+    // SUPPLIER DIRECTORY
+    let suppliers = JSON.parse(localStorage.getItem('hn_suppliers')) || [
+      { id: 1, name: 'আলমগীর হোসেন', company: 'স্মার্ট ডিস্ট্রিবিউশন', phone: '01712-345678', items: 'Vivo, Realme Phone' },
+      { id: 2, name: 'রফিকুল ইসলাম', company: 'ফাস্ট গ্যাজেটস', phone: '01911-889900', items: 'Fast Charger, Earphones' }
+    ];
+
+    function renderSuppliers() {
+      const tbody = document.getElementById('supplierTable');
+      tbody.innerHTML = '';
+      suppliers.forEach((s, i) => {
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>#${i+1}</td>
+          <td><b>${s.name}</b></td>
+          <td>${s.company || '-'}</td>
+          <td>${s.phone}</td>
+          <td>${s.items}</td>
+          <td style="text-align:center;">
+            <button onclick="deleteSupplier(${s.id})" class="btn-action btn-del">মুছুন</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      updateSupplierDropdowns();
+    }
+
+    function updateSupplierDropdowns() {
+      const pSupp = document.getElementById('pSupplier');
+      let options = `<option value="-">কোনো নির্দিষ্ট সাপ্লায়ার নেই</option>`;
+      suppliers.forEach(s => {
+        options += `<option value="${s.name} (${s.company || '-'})">${s.name} (${s.company || '-'})</option>`;
+      });
+      if (pSupp) pSupp.innerHTML = options;
+    }
+
+    function openSupplierAdd() {
+      const name = prompt('সাপ্লায়ার / ডিলারের নাম:');
+      if (!name) return;
+      const company = prompt('কোম্পানির নাম:') || '-';
+      const phone = prompt('মোবাইল নম্বর:') || '-';
+      const items = prompt('সরবরাহকৃত পণ্য:') || '-';
+
+      suppliers.push({ id: Date.now(), name, company, phone, items });
+      localStorage.setItem('hn_suppliers', JSON.stringify(suppliers));
+      renderSuppliers();
+    }
+
+    function deleteSupplier(id) {
+      if (!confirm('সাপ্লায়ারের তথ্য মুছে ফেলতে চান?')) return;
+      suppliers = suppliers.filter(s => s.id !== id);
+      localStorage.setItem('hn_suppliers', JSON.stringify(suppliers));
+      renderSuppliers();
+    }
+
+    // PRODUCTS
+    async function loadProducts() {
+      const res = await fetch(`${API_BASE}/products`);
+      allProducts = await res.json();
+      renderProductTable(allProducts);
+    }
+
+    function renderProductTable(products) {
+      const tbody = document.getElementById('inventoryTable');
+      const select = document.getElementById('saleProductSelect');
+      tbody.innerHTML = '';
+      select.innerHTML = `<option value="">পণ্য নির্বাচন করুন...</option>`;
+
+      let inStock = 0, lowStock = 0, outStock = 0;
+      allProducts.forEach(p => {
+        const qty = p.stock_quantity || 0;
+        if (qty === 0) outStock++;
+        else if (qty <= 3) { lowStock++; inStock++; }
+        else inStock++;
+      });
+
+      products.forEach(p => {
+        const qty = p.stock_quantity || 0;
+        const statusBadge = qty === 0 
+          ? `<span class="badge-out">স্টক শেষ</span>` 
+          : `<span class="badge-in">স্টকে আছে</span>`;
+
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>#${p.id}</td>
+          <td><b>${p.name}</b></td>
+          <td>${p.category || '-'}</td>
+          <td style="color:#1d4ed8; font-weight:600;">${p.supplier || '-'}</td>
+          <td>৳ ${p.buy_price ? p.buy_price.toFixed(2) : '0.00'}</td>
+          <td>৳ ${p.sale_price}</td>
+          <td style="color:${qty === 0 ? 'red':'inherit'}; font-weight:bold;">${qty}</td>
+          <td>${statusBadge}</td>
+          <td style="text-align: center;">
+            <button class="btn-action btn-del" onclick="deleteProduct(${p.id})">মুছুন</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+
+        if (qty > 0) {
+          const opt = document.createElement('option');
+          opt.value = p.id;
+          opt.dataset.name = p.name;
+          opt.dataset.price = p.sale_price;
+          opt.dataset.buyPrice = p.buy_price || 0;
+          opt.innerText = `${p.name} — ৳${p.sale_price} (স্টক: ${qty})`;
+          select.appendChild(opt);
+        }
+      });
+
+      document.getElementById('statTotalProducts').innerText = allProducts.length;
+      document.getElementById('statInStock').innerText = inStock;
+      document.getElementById('statLowStock').innerText = lowStock;
+      document.getElementById('statOutOfStock').innerText = outStock;
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('আপনি কি পণ্যটি মুছে ফেলতে চান?')) return;
+      const res = await fetch(`${API_BASE}/products/${id}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('পণ্য মুছে ফেলা হয়েছে!');
+        loadProducts();
+      }
+    }
+
+    function filterStock(type) {
+      if (type === 'out') {
+        renderProductTable(allProducts.filter(p => (p.stock_quantity || 0) === 0));
+        document.getElementById('stockFilterNotice').innerText = 'ফিল্টার: স্টক শেষ পণ্যসমূহ';
+      } else if (type === 'in') {
+        renderProductTable(allProducts.filter(p => (p.stock_quantity || 0) > 0));
+        document.getElementById('stockFilterNotice').innerText = 'ফিল্টার: স্টকে থাকা পণ্যসমূহ';
+      } else {
+        renderProductTable(allProducts);
+        document.getElementById('stockFilterNotice').innerText = 'সব পণ্য দেখানো হচ্ছে';
+      }
+      document.getElementById('inventorySection').scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // DAILY SALES
+    async function loadDailyReport() {
+      const selectedDate = document.getElementById('reportDate').value;
+      const res = await fetch(`${API_BASE}/reports/daily?date=${selectedDate}`);
+      const data = await res.json();
+      salesHistory = data.sales || [];
+      const tbody = document.getElementById('salesReportTable');
+      tbody.innerHTML = '';
+      let totalProfit = 0;
+
+      if (!salesHistory.length) {
+        tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; color:#94a3b8;">কোনো বিক্রয়ের রেকর্ড নেই</td></tr>`;
+        document.getElementById('statTodayProfit').innerText = `৳ 0.00`;
+        return;
+      }
+
+      salesHistory.forEach((s, idx) => {
+        const profit = (s.total_amount || 0) - (s.total_cost || 0);
+        totalProfit += profit;
+        const tr = document.createElement('tr');
+        tr.innerHTML = `
+          <td>#${s.id}</td>
+          <td>${s.sale_time || '-'}</td>
+          <td>${s.customer_name}</td>
+          <td>৳ ${s.total_amount.toFixed(2)}</td>
+          <td>৳ ${s.paid_amount.toFixed(2)}</td>
+          <td style="color:${s.due_amount > 0 ? 'red':'inherit'}; font-weight:bold;">৳ ${s.due_amount.toFixed(2)}</td>
+          <td style="color:green; font-weight:bold;">৳ ${(profit > 0 ? profit : 0).toFixed(2)}</td>
+          <td style="text-align:center;">
+            <button onclick="viewOldMemo(${idx})" style="padding:4px 8px; background:#0284c7; color:#fff; border:none; border-radius:4px; cursor:pointer;">মেমো</button>
+            <button onclick="deleteMemo(${s.id})" style="padding:4px 8px; background:#fee2e2; color:#dc2626; border:none; border-radius:4px; font-weight:bold; cursor:pointer; margin-left:4px;">ডিলেট</button>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      document.getElementById('statTodayProfit').innerText = `৳ ${totalProfit.toFixed(2)}`;
+    }
+
+    async function deleteMemo(saleId) {
+      if (!confirm(`আপনি কি #${saleId} নম্বর মেমোটি ডিলেট করতে চান?\nস্টক পুনরায় ফেরত যোগ হবে।`)) return;
+      const res = await fetch(`${API_BASE}/sales/${saleId}`, { method: 'DELETE' });
+      if (res.ok) {
+        alert('মেমো ডিলেট ও স্টক ফেরত সম্পন্ন হয়েছে!');
+        loadDailyReport();
+        loadProducts();
+      }
+    }
+
+    function calculateTotal() {
+      const select = document.getElementById('saleProductSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt || !opt.dataset.price) return;
+      const price = parseFloat(opt.dataset.price);
+      const qty = parseInt(document.getElementById('saleQty').value) || 1;
+      const discount = parseFloat(document.getElementById('saleDiscount').value) || 0;
+      const payable = Math.max(0, (price * qty) - discount);
+      document.getElementById('salePaid').value = payable;
+      calculateDue();
+    }
+
+    function calculateDue() {
+      const select = document.getElementById('saleProductSelect');
+      const opt = select.options[select.selectedIndex];
+      if (!opt || !opt.dataset.price) return;
+      const price = parseFloat(opt.dataset.price);
+      const qty = parseInt(document.getElementById('saleQty').value) || 1;
+      const discount = parseFloat(document.getElementById('saleDiscount').value) || 0;
+      const payable = Math.max(0, (price * qty) - discount);
+      const paid = parseFloat(document.getElementById('salePaid').value) || 0;
+      document.getElementById('saleDueDisplay').value = `৳ ${Math.max(0, payable - paid).toFixed(2)}`;
+    }
+
+    document.getElementById('saleForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const select = document.getElementById('saleProductSelect');
+      const opt = select.options[select.selectedIndex];
+      const prodName = opt.dataset.name;
+      const unitPrice = parseFloat(opt.dataset.price);
+      const buyPrice = parseFloat(opt.dataset.buyPrice) || 0;
+      const qty = parseInt(document.getElementById('saleQty').value);
+      const discount = parseFloat(document.getElementById('saleDiscount').value) || 0;
+      const paid = parseFloat(document.getElementById('salePaid').value) || 0;
+      const custName = document.getElementById('custName').value;
+      const custPhone = document.getElementById('custPhone').value;
+      const custAddress = document.getElementById('custAddress').value || '-';
+      const challanNo = document.getElementById('saleChallan').value || '-';
+
+      const payload = {
+        customer_name: custName,
+        customer_phone: custPhone,
+        discount: discount,
+        paid_amount: paid,
+        items: [{ product_id: parseInt(opt.value), quantity: qty, unit_price: unitPrice, buy_price: buyPrice }]
+      };
+
+      const res = await fetch(`${API_BASE}/sales`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      const data = await res.json();
+      if (res.ok) {
+        openInvoice(data.saleId, custName, custPhone, custAddress, challanNo, prodName, qty, unitPrice, discount, paid);
+        e.target.reset();
+        loadProducts();
+        loadDailyReport();
+      }
+    });
+
+    document.getElementById('addProductForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const payload = {
+        name: document.getElementById('pName').value,
+        category: document.getElementById('pCategory').value,
+        supplier: document.getElementById('pSupplier').value || '-',
+        has_imei: 0,
+        stock_quantity: parseInt(document.getElementById('pStock').value) || 0,
+        buy_price: parseFloat(document.getElementById('pBuyPrice').value) || 0,
+        sale_price: parseFloat(document.getElementById('pPrice').value)
+      };
+      const res = await fetch(`${API_BASE}/products`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+      if (res.ok) {
+        alert('পণ্য সফলভাবে যোগ হয়েছে!');
+        e.target.reset();
+        loadProducts();
+      }
+    });
+
+    function viewOldMemo(idx) {
+      const s = salesHistory[idx];
+      openInvoice(s.id, s.customer_name, s.customer_phone, '-', '-', 'পণ্য বিক্রয়', 1, s.total_amount, s.discount || 0, s.paid_amount);
+    }
+
+    function openInvoice(saleId, name, phone, address, challan, item, qty, price, discount, paid) {
+      const subtotal = price * qty;
+      const netTotal = Math.max(0, subtotal - discount);
+      const due = Math.max(0, netTotal - paid);
+      const now = new Date();
+      const dateFormatted = now.toLocaleDateString('en-GB');
+
+      // Populate A4
+      document.getElementById('mA4CustName').innerText = name || '-';
+      document.getElementById('mA4Address').innerText = address || '-';
+      document.getElementById('mA4Mobile').innerText = phone || '-';
+      document.getElementById('mA4InvoiceNo').innerText = `#${String(saleId).padStart(5, '0')}`;
+      document.getElementById('mA4Date').innerText = dateFormatted;
+      document.getElementById('mA4Challan').innerText = challan || '-';
+
+      let rowsHtml = `
+        <tr>
+          <td style="text-align:center;">01</td>
+          <td><b>${item}</b></td>
+          <td style="text-align:center;">${String(qty).padStart(2, '0')}</td>
+          <td style="text-align:right;">${price.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+          <td style="text-align:right;">${subtotal.toLocaleString('en-US', {minimumFractionDigits: 2})}</td>
+        </tr>
+      `;
+      for(let i=2; i<=7; i++) {
+        rowsHtml += `<tr><td style="text-align:center; color:#94a3b8;">${String(i).padStart(2, '0')}</td><td></td><td></td><td></td><td></td></tr>`;
+      }
+      document.getElementById('mA4ItemsBody').innerHTML = rowsHtml;
+
+      document.getElementById('mA4Subtotal').innerText = subtotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('mA4Discount').innerText = discount > 0 ? discount.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00';
+      document.getElementById('mA4NetTotal').innerText = netTotal.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('mA4Paid').innerText = paid > 0 ? paid.toLocaleString('en-US', {minimumFractionDigits: 2}) : '0.00';
+      document.getElementById('mA4Due').innerText = due.toLocaleString('en-US', {minimumFractionDigits: 2});
+      document.getElementById('mA4InWords').innerText = numberToWords(netTotal);
+
+      // Populate Thermal
+      document.getElementById('thInv').innerText = String(saleId).padStart(5, '0');
+      document.getElementById('thDateTime').innerText = `${dateFormatted} (${now.toLocaleTimeString('bn-BD')})`;
+      document.getElementById('thCust').innerText = name || '-';
+      document.getElementById('thPhone').innerText = phone || '-';
+      document.getElementById('thItems').innerHTML = `
+        <tr>
+          <td style="font-weight:700;">${item}</td>
+          <td style="text-align:center;">${qty}</td>
+          <td style="text-align:right; font-weight:700;">${subtotal.toFixed(2)}</td>
+        </tr>
+      `;
+      document.getElementById('thSub').innerText = subtotal.toFixed(2);
+      document.getElementById('thDisc').innerText = discount.toFixed(2);
+      document.getElementById('thNet').innerText = netTotal.toFixed(2);
+      document.getElementById('thPaid').innerText = paid.toFixed(2);
+      document.getElementById('thDue').innerText = due.toFixed(2);
+
+      document.getElementById('invoiceModal').style.display = 'flex';
+    }
+
+    function executePrint(mode) {
+      document.body.className = mode === 'thermal' ? 'print-mode-thermal' : 'print-mode-a4';
+      window.print();
+    }
+
+    loadProducts();
+    renderSuppliers();
+    loadDailyReport();
+  </script>
+</body>
+</html>
