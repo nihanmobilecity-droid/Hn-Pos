@@ -19,10 +19,12 @@ jobs:
           node-version: 20
 
       - name: Install Dependencies
-        run: npm install electron electron-packager better-sqlite3 express cors
+        run: |
+          npm install express cors better-sqlite3
+          npm install --save-dev electron@30.0.0 electron-packager
 
       - name: Build Windows EXE
-        run: npx electron-packager . "Hridoy And Nusrat Mobile Zone" --platform=win32 --arch=x64 --out=dist --overwrite
+        run: npx electron-packager . "Hridoy And Nusrat Mobile Zone" --platform=win32 --arch=x64 --out=dist --overwrite --prune=false
 
       - name: Upload EXE Artifact
         uses: actions/upload-artifact@v4
